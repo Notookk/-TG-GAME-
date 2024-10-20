@@ -1,25 +1,27 @@
 import random
 import os
 
-BASE_PATH = os.path.dirname(__file__)
-WORDS_FOLDER = os.path.join(BASE_PATH, "words")
+class WordLoader:
+    def __init__(self, word_directory="words/"):
+        """Initializes the WordLoader with the directory containing word files."""
+        self.word_directory = word_directory
 
-def load_words_from_file(category):
-    """Loads word pairs from the given category file."""
-    file_path = os.path.join(WORDS_FOLDER, f"{category}.txt")
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"No word file found for category: {category}")
+    def load_words(self, category):
+        """Loads word pairs from the given category file."""
+        file_path = os.path.join(self.word_directory, f"{category}.txt")
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                word_pairs = [line.strip().split(" : ") for line in file]
+                return word_pairs
+        except FileNotFoundError:
+            raise ValueError(f"No word file found for category: {category}")
 
-    with open(file_path, 'r') as f:
-        pairs = [line.strip().split(" : ") for line in f if " : " in line]
-    return pairs
-
-def load_random_pair(category):
-    """Select a random word pair from the chosen category."""
-    try:
-        word_pairs = load_words_from_file(category)
+    def get_random_word_pair(self, category):
+        """Fetches a random word pair from the chosen category."""
+        word_pairs = self.load_words(category)
         return random.choice(word_pairs)
-    except Exception as e:
-        print(f"Error loading words: {e}")
-        # Fallback to a default pair if the category is unavailable
-        return ("Error", "Fallback")
+
+    def get_random_category(self):
+        """Randomly selects a category from available ones."""
+        categories = ["sports", "food", "animal", "professions"]
+        return random.choice(categories)
