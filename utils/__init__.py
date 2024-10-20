@@ -3,7 +3,7 @@ from .game_manager import GameManager
 from .word_loader import WordLoader
 from .logger import logger
 
-# Initialize instances of utility classes
+# Initialize the utility classes
 player_manager = PlayerManager()
 game_manager = GameManager()
 word_loader = WordLoader()
