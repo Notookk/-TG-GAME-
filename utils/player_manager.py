@@ -5,14 +5,14 @@ class PlayerManager:
     def __init__(self):
         self.players = {}  # {user_id: username}
         self.game_active = False
-        self.game_start_time = None  # Tracks when the game is about to start
+        self.game_start_time = None  # Tracks when the game started
         self.TIMEOUT = timedelta(minutes=5)  # 5-minute join window
 
     def add_player(self, user_id, username):
         """Add a player to the game if not already joined."""
         if user_id in self.players:
             logger.warning(f"User {username} (ID: {user_id}) tried to join again.")
-            return False  # Already joined
+            return False  # Player already joined
 
         self.players[user_id] = username
         logger.info(f"Player added: {username} (ID: {user_id})")
@@ -30,10 +30,10 @@ class PlayerManager:
             username = self.players.pop(user_id)
             logger.info(f"Player removed: {username} (ID: {user_id})")
         else:
-            logger.warning(f"Attempted to remove non-existent player with ID: {user_id}")
+            logger.warning(f"Tried to remove non-existent player with ID: {user_id}")
 
     def get_player_list(self):
-        """Returns a list of players in Markdown format."""
+        """Returns the current list of players in Markdown format."""
         if not self.players:
             logger.info("No players have joined yet.")
             return ["No players have joined."]
@@ -52,14 +52,15 @@ class PlayerManager:
         if self.player_count() < 6:
             logger.error("Cannot start game: Not enough players (min 6 required).")
             return False
+
         self.game_active = True
         logger.info("Game started successfully.")
         return True
 
     def force_start_game(self, is_admin):
-        """Allows admins to start the game even with fewer players."""
+        """Allows only admins to force-start the game, even with fewer players."""
         if not is_admin:
-            logger.warning("Unauthorized user attempted to force start the game.")
+            logger.warning("Unauthorized user attempted to force-start the game.")
             return False
 
         self.game_active = True
@@ -76,7 +77,7 @@ class PlayerManager:
     def check_timeout(self):
         """Checks if the join window has expired."""
         if self.game_start_time and datetime.now() > self.game_start_time + self.TIMEOUT:
-            logger.info("Game join window has expired. Cancelling game.")
+            logger.info("Game join window expired. Cancelling the game.")
             self.end_game()
             return True
         return False
